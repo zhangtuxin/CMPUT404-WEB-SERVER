@@ -1,14 +1,14 @@
-#  coding: utf-8 
-import SocketServer
+#  coding: utf-8
+import SocketServer,os
 
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,11 +28,50 @@ import SocketServer
 
 
 class MyWebServer(SocketServer.BaseRequestHandler):
-    
+
     def handle(self):
         self.data = self.request.recv(1024).strip()
-        print ("Got a request of: %s\n" % self.data)
-        self.request.sendall("OK")
+
+
+        #print ("Got a request of: %s\n" % self.data)
+
+        #self.request.sendall("OK")
+
+
+        path = self.data.split()[1]
+
+        # check the path to get full path to files
+        if path[-1] == '/':
+            fullPath = os.getcwd() + "/www" + path + "index.html"
+        # this elif is for security test
+        elif "../" in path:
+            header, fileStr = "HTTP/1.1 404 Not Found\n", '\n'
+            self.request.sendall(header + "\r\n" + fileStr)
+            return
+        else:
+            fullPath = os.getcwd() + "/www" + path
+
+        # get the local path
+        localPath = os.path.normpath(fullPath)
+
+        # update fileStr and header
+        try:
+            # read the file and update fileStr
+            theFile = open(localPath, 'r')
+            fileStr = theFile.read()
+            theFile.close()
+
+            # update header
+            docType = fullPath.split('.')[-1]
+            header = "HTTP/1.1 200 OK\r\n" + \
+                     "Content-Type: text/" + docType + ";charset=UTF-8\r\n"
+
+        # Raised IOError when the built-in open() function fails
+        except IOError:
+            header, fileStr = "HTTP/1.1 404 Not Found\n", '\n'
+
+        # display the page
+        self.request.sendall(header + "\r\n" + fileStr)
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
