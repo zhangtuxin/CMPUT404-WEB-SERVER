@@ -33,12 +33,20 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         self.data = self.request.recv(1024).strip()
 
 
-        #print ("Got a request of: %s\n" % self.data)
+        print ("Got a request of: %s\n" % self.data)
 
         #self.request.sendall("OK")
 
 
         path = self.data.split()[1]
+        method_type = self.data.split()[0]
+        if method_type != 'GET':
+            status_code = "HTTP/1.1 405 Method not allowed\n"
+            content = "Content-Type: text/html\n\n"+\
+                "405 method not allowed\n"
+            self.request.sendall(status_code)
+            self.request.sendall(content)
+            return
 
         # check the path to get full path to files
         if path[-1] == '/':
