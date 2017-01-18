@@ -41,7 +41,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         path = self.data.split()[1]
         method_type = self.data.split()[0]
         if method_type != 'GET':
-            status_code = "HTTP/1.1 405 Method not allowed\n"
+            status_code = "HTTP/1.1 405 Method not allowed\r\n"
             content = "Content-Type: text/html\n\n"+\
                 "405 method not allowed\n"
             self.request.sendall(status_code)
