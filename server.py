@@ -42,8 +42,9 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         method_type = self.data.split()[0]
         if method_type != 'GET':
             status_code = "HTTP/1.1 405 Method not allowed\r\n"
-            content = "Content-Type: text/html\n\n"+\
-                "405 method not allowed\n"
+            content = "Content-type: text/html\n\n"+\
+			"<html><head></head><body>"+\
+			"<h1><center>HTTP/1.1 405 Method not allowed</center></h1></body></html>\n"
             self.request.sendall(status_code)
             self.request.sendall(content)
             return
@@ -53,7 +54,10 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             fullPath = os.getcwd() + "/www" + path + "index.html"
         # this elif is for security test
         elif "../" in path:
-            header, fileStr = "HTTP/1.1 404 Not Found\n", '\n'
+            header = "HTTP/1.1 404 Not Found\n"
+            fileStr = "Content-type: text/html\n\n"+\
+			"<html><head></head><body>"+\
+			"<h1><center>HTTP/1.1 404 Page Not Found</center></h1></body></html>\n"
             self.request.sendall(header + "\r\n" + fileStr)
             return
         else:
@@ -76,7 +80,10 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 
         # Raised IOError when the built-in open() function fails
         except IOError:
-            header, fileStr = "HTTP/1.1 404 Not Found\n", '\n'
+            header = "HTTP/1.1 404 Not Found\n"
+            fileStr ="Content-type: text/html\n\n"+\
+			"<html><head></head><body>"+\
+			"<h1><center>HTTP/1.1 404 Page not found</center></h1></body></html>\n"
 
         # display the page
         self.request.sendall(header + "\r\n" + fileStr)
