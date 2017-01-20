@@ -68,20 +68,18 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 
         # update fileStr and header
         try:
-            # read the file and update fileStr
-            theFile = open(localPath, 'r')
+            theFile = open(localPath, 'r') #serve file in www
             fileStr = theFile.read()
             theFile.close()
 
-            # update header
-            docType = fullPath.split('.')[-1]
+            docType = fullPath.split('.')[-1] #after the  . is the mime type
             header = "HTTP/1.1 200 OK\r\n" + \
                      "Content-Type: text/" + docType + ";charset=UTF-8\r\n"
 
         # Raised IOError when the built-in open() function fails
         except IOError:
-            header = "HTTP/1.1 404 Not Found\n"
-            fileStr ="Content-type: text/html\n\n"+\
+            header = "HTTP/1.1 404 Not Found\n Content-type: text/html\n\n"
+            fileStr ="\n\n"+\
 			"<html><head></head><body>"+\
 			"<h1><center>HTTP/1.1 404 Page not found</center></h1></body></html>\n"
 
