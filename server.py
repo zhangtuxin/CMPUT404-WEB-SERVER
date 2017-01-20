@@ -56,18 +56,17 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         if ( os.path.exists(Path) == False or "../" in Path):
         	#print ("path is %s \n"%path)
         	header = "HTTP/1.1 404 Not Found\n Content-type: text/html\n\n"
-        	fileStr ="<html><head></head><body>"+"<h1><center>HTTP/1.1 404 Page Not Found!</center></h1></body></html>\n"
-        	self.request.sendall(header + "\r\n" + fileStr)
+        	file_content ="<html><head></head><body>"+"<h1><center>HTTP/1.1 404 Page Not Found!</center></h1></body></html>\n"
+        	self.request.sendall(header + "\r\n" + file_content)
         	return
 
         read_file = os.path.abspath(Path)
 
-        # update fileStr and header
         try:
             myfile = open(read_file, 'r') #serve file in www
-            fileStr = ""
+            file_content = ""
             for i in myfile:
-            	fileStr +=i
+            	file_content +=i
             myfile.close()
             mime_type = Path.split('.')[1] #after the  . is the mime type
             #print ("Mime is %s \n"%mime_type)
@@ -75,10 +74,10 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             header = "HTTP/1.1 200 OK\r\n" + "Content-type: text/%s\r\n" %mime_type
         except IOError:   # if the path is not vaild . then give 404 status code
             header = "HTTP/1.1 404 Not FOUND!\n Content-type: text/html\n\n"
-            fileStr ="<html><head></head><body>"+"<h1><center>HTTP/1.1 404 Page Not FOUND !</center></h1></body></html>\n"
+            file_content ="<html><head></head><body>"+"<h1><center>HTTP/1.1 404 Page Not FOUND !</center></h1></body></html>\n"
 
         # display the page
-        self.request.sendall(header + "\r\n" + fileStr)
+        self.request.sendall(header + "\r\n" + file_content)
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
