@@ -31,57 +31,51 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 
     def handle(self):
         self.data = self.request.recv(1024).strip()
-
-
-        print ("Got a request of: %s\n" % self.data)
+        #print ("Got a request of: %s\n" % self.data)
 
         #self.request.sendall("OK")
-
-
         path = self.data.split()[1]
         method_type = self.data.split()[0]
-        if method_type != 'GET':
+        if method_type != 'GET':                                 #only GET will be handled !
             status_code = "HTTP/1.1 405 Method not allowed\r\n"
-            content = "Content-type: text/html\n\n"+\
-			"<html><head></head><body>"+\
-			"<h1><center>HTTP/1.1 405 Method not allowed</center></h1></body></html>\n"
+            content_type = "Content-type: text/html\n\n"
+            content = "<html><head></head><body>"+"<h1><center>HTTP/1.1 405 Method not allowed</center></h1></body></html>\n"
             self.request.sendall(status_code)
+            self.request.sendall(content_type)
             self.request.sendall(content)
             return
 
-        # check the path to get full path to files
         if path[-1] == '/':
-            fullPath = os.getcwd() + "/www" + path + "index.html"
-        # this elif is for security test
-        elif "../" in path:
-            header = "HTTP/1.1 404 Not Found\n"
-            fileStr = "Content-type: text/html\n\n"+\
-			"<html><head></head><body>"+\
-			"<h1><center>HTTP/1.1 404 Page Not Found</center></h1></body></html>\n"
-            self.request.sendall(header + "\r\n" + fileStr)
-            return
+            Path = os.getcwd() + "/www" + path + "index.html"
         else:
-            fullPath = os.getcwd() + "/www" + path
+            Path = os.getcwd() + "/www" + path
 
-        # get the local path
-        localPath = os.path.normpath(fullPath)
+        #print ("Path is %s \n"%Path) /home/tuxin/Desktop/CMPUT404/Assignment1/CMPUT404-WEB-SERVER/www/../../../../../../../../../../../../etc/group 
+        #print ("path is %s \n"%path) /../../../../../../../../../../../../etc/group 
+
+        if ( os.path.exists(Path) == False or "../" in path):
+        	#print ("path is %s \n"%path)
+        	header = "HTTP/1.1 404 Not Found\n Content-type: text/html\n\n"
+        	fileStr ="<html><head></head><body>"+"<h1><center>HTTP/1.1 404 Page Not Found!</center></h1></body></html>\n"
+        	self.request.sendall(header + "\r\n" + fileStr)
+        	return
+
+        read_file = os.path.abspath(Path)
 
         # update fileStr and header
         try:
-            theFile = open(localPath, 'r') #serve file in www
-            fileStr = theFile.read()
-            theFile.close()
-
-            docType = fullPath.split('.')[-1] #after the  . is the mime type
-            header = "HTTP/1.1 200 OK\r\n" + \
-                     "Content-Type: text/" + docType + ";charset=UTF-8\r\n"
-
-        # Raised IOError when the built-in open() function fails
-        except IOError:
-            header = "HTTP/1.1 404 Not Found\n Content-type: text/html\n\n"
-            fileStr ="\n\n"+\
-			"<html><head></head><body>"+\
-			"<h1><center>HTTP/1.1 404 Page not found</center></h1></body></html>\n"
+            myfile = open(read_file, 'r') #serve file in www
+            fileStr = ""
+            for i in myfile:
+            	fileStr +=i
+            myfile.close()
+            mime_type = Path.split('.')[1] #after the  . is the mime type
+            #print ("Mime is %s \n"%mime_type)
+            #header = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/" + mime_type + ";charset=UTF-8\r\n"
+            header = "HTTP/1.1 200 OK\r\n" + "Content-type: text/%s" %mime_type
+        except IOError:   # if the path is not vaild . then give 404 status code
+            header = "HTTP/1.1 404 Not FOUND!\n Content-type: text/html\n\n"
+            fileStr ="<html><head></head><body>"+"<h1><center>HTTP/1.1 404 Page Not FOUND !</center></h1></body></html>\n"
 
         # display the page
         self.request.sendall(header + "\r\n" + fileStr)
