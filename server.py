@@ -52,8 +52,8 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 
         #print ("Path is %s \n"%Path) /home/tuxin/Desktop/CMPUT404/Assignment1/CMPUT404-WEB-SERVER/www/../../../../../../../../../../../../etc/group 
         #print ("path is %s \n"%path) /../../../../../../../../../../../../etc/group 
-
-        if ( os.path.exists(Path) == False or "../" in path):
+        #print ("Path is %s \n"%Path)
+        if ( os.path.exists(Path) == False or "../" in Path):
         	#print ("path is %s \n"%path)
         	header = "HTTP/1.1 404 Not Found\n Content-type: text/html\n\n"
         	fileStr ="<html><head></head><body>"+"<h1><center>HTTP/1.1 404 Page Not Found!</center></h1></body></html>\n"
@@ -72,7 +72,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             mime_type = Path.split('.')[1] #after the  . is the mime type
             #print ("Mime is %s \n"%mime_type)
             #header = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/" + mime_type + ";charset=UTF-8\r\n"
-            header = "HTTP/1.1 200 OK\r\n" + "Content-type: text/%s" %mime_type
+            header = "HTTP/1.1 200 OK\r\n" + "Content-type: text/%s\r\n" %mime_type
         except IOError:   # if the path is not vaild . then give 404 status code
             header = "HTTP/1.1 404 Not FOUND!\n Content-type: text/html\n\n"
             fileStr ="<html><head></head><body>"+"<h1><center>HTTP/1.1 404 Page Not FOUND !</center></h1></body></html>\n"
